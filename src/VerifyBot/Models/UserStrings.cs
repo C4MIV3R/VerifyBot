@@ -10,7 +10,7 @@
 
         public string AccountNotOnServer { get; set; }
 
-        public string NotInAlliance {get; set; }
+        public string AccountNotInAlliance {get; set; }
 
         public string EndMessage { get; set; }
 

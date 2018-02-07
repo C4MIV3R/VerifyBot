@@ -3,6 +3,7 @@
   "AccountNameDoesNotMatch": "API Key account does not match supplied account name.",
   "AccountNotInAPI": "Could not find that account in the GW2 API.",
   "AccountNotOnServer": "Account is not on a valid server.",
+  "AccountNotInAlliance": "Account is not in our Alliance",
   "EndMessage": "Verification Process Complete. Welcome!",
   "ErrorMessage": "Error processing your verification request. Please try again.",
   "InvalidAPIKey": "Bad API Key",

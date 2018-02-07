@@ -5,13 +5,14 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using VerifyBot.Models;
 
 namespace VerifyBot.Services
 {
     public class VerifyService
     {
-
+        
         private const int APIKeyLength = 72;
         private static readonly Regex AccountNameApiKeyRegex = new Regex(@"\s*(.+?\.\d+)\s+(.*?-.*?-.*?-.*?-.*)\s*$");
         private readonly UserStrings strings;
@@ -29,7 +30,9 @@ namespace VerifyBot.Services
 
             API = new ApiFacade(APIKey);
 
-            HasValidCharacter = false;            
+            HasValidCharacter = false;
+
+            IsValidAllianceUser = false;
         }
 
         public Account Account { get; private set; }
@@ -50,13 +53,15 @@ namespace VerifyBot.Services
             }
         }
 
-        public bool IsValid => IsValidAccount && HasValidCharacter;
+        public bool IsValid => IsValidAccount && IsValidAllianceUser; // && HasValidCharacter
 
         public IUser Requestor { get; }
 
         private ApiFacade API { get; }
 
         private bool HasValidCharacter { get; set; }
+
+        private bool IsValidAllianceUser { get; set; }
 
         private bool IsValidAccount => Account != null;
 
@@ -99,7 +104,10 @@ namespace VerifyBot.Services
         {
             await ValidateAccount(isReverify);
             if (IsValidAccount)
-                await ValidateCharacters();
+            {
+                //await ValidateCharacters();
+                await ValidateAlliance();
+            }
         }
 
         public async Task LoadAccount()
@@ -147,7 +155,7 @@ namespace VerifyBot.Services
                 Console.WriteLine($"Could not verify {Requestor.Username} - Not on Server.");
                 return;
             }
-
+        
             Account = account;
         }
 
@@ -180,31 +188,35 @@ namespace VerifyBot.Services
             HasValidCharacter = true;
         }
 
-        private async Task ValidateGuilds() 
+        // comment out when testing
+        private async Task ValidateAlliance()
         {
             if (Account.GuildIds.Count() >= 1)
             {
-                var guilds = await API.V2.Authenticated.GetAccountAsync();
-
                 var isInAlliance = false;
-                foreach(var guild in guilds)
-                {
-                    var guildObj = await API.V2.Authenticated.GetAccountAsync(guild);
+                var userAccount = await API.V2.Authenticated.GetAccountAsync();
+                var userGuilds = userAccount.GuildIds;
 
-                    if(guildObj)
+                foreach(var guild in userGuilds)
+                {
+                    if(Manager.Config.GuildIds.Contains(guild))
                     {
+                        Console.WriteLine($"--- Guild ID = {guild} ---");
                         isInAlliance = true;
+                        Console.WriteLine($"--- isInAlliance = {isInAlliance} ---");
                         break;
                     }
                 }
+
                 if(!isInAlliance)
                 {
-                    await SendMessageAsync(this.strings.NotInAlliance);
+                    await SendMessageAsync(this.strings.AccountNotInAlliance);
                     Console.WriteLine($"Could not verify {Requestor.Username} - Not in our Alliance");
                     return;
                 }
-
             }
+            IsValidAllianceUser = true;
+            Console.WriteLine($"--- IsValidAllianceUser = {IsValidAllianceUser} ---");
         }
     }
 }

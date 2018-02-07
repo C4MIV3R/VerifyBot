@@ -28,7 +28,7 @@ namespace VerifyBot
 
         public ulong VerifyRoleId { get { return VerifyRole.Id; } }
 
-        private Configuration Config { get; set; }
+        public Configuration Config { get; private set; }
 
         private IGuild Discord { get; set; }
 
@@ -52,11 +52,6 @@ namespace VerifyBot
         public bool IsAccountOnOurWorld(Account account)
         {
             return Config.WorldIds.Contains(account.WorldId);
-        }
-
-        public bool IsAccountInOurAlliance(Account account)
-        {
-            return Config.GuildIds.Contains(account.GuildIds);
         }
 
         public bool IsUserVerified(IGuildUser user)

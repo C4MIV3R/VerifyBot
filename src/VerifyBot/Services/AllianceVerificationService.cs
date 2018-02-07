@@ -5,13 +5,13 @@ using VerifyBot.Models;
 
 namespace VerifyBot.Services
 {
-    public class WorldVerificationService
+    public class AllianceVerificationService
     {
         private readonly Manager manager;
 
         private readonly UserStrings strings;
 
-        public WorldVerificationService(Manager manager, UserStrings strings)
+        public AllianceVerificationService(Manager manager, UserStrings strings)
         {
             this.manager = manager;
             this.strings = strings;
@@ -42,7 +42,9 @@ namespace VerifyBot.Services
                 await request.Validate(false);
 
                 if (!request.IsValid)
+                {
                     return;
+                }
 
                 await manager.VerifyUser(request.Requestor.Id, request.Account.Id, request.APIKey);
 
