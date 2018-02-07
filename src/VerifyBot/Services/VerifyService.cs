@@ -11,13 +11,14 @@ namespace VerifyBot.Services
 {
     public class VerifyService
     {
+
         private const int APIKeyLength = 72;
         private static readonly Regex AccountNameApiKeyRegex = new Regex(@"\s*(.+?\.\d+)\s+(.*?-.*?-.*?-.*?-.*)\s*$");
         private readonly UserStrings strings;
 
         public VerifyService(string accountId, string accountName, string apiKey, Manager manager, IUser requestor, UserStrings strings, IMessageChannel channel)
         {
-            AccoutId = accountId;
+            AccountId = accountId;
             AccountName = accountName;
             APIKey = apiKey;
             Requestor = requestor;
@@ -33,7 +34,7 @@ namespace VerifyBot.Services
 
         public Account Account { get; private set; }
 
-        public string AccoutId { get; }
+        public string AccountId { get; }
 
         public string AccountName { get; }
 
@@ -124,7 +125,7 @@ namespace VerifyBot.Services
 
             if (isReverify)
             {
-                if (account.Id != AccoutId)
+                if (account.Id != AccountId)
                 {                    
                     Console.WriteLine($"Could not verify {Requestor.Username} - API Key account does not match supplied account ID.");
                     return;
@@ -177,6 +178,33 @@ namespace VerifyBot.Services
             }
 
             HasValidCharacter = true;
+        }
+
+        private async Task ValidateGuilds() 
+        {
+            if (Account.GuildIds.Count() >= 1)
+            {
+                var guilds = await API.V2.Authenticated.GetAccountAsync();
+
+                var isInAlliance = false;
+                foreach(var guild in guilds)
+                {
+                    var guildObj = await API.V2.Authenticated.GetAccountAsync(guild);
+
+                    if(guildObj)
+                    {
+                        isInAlliance = true;
+                        break;
+                    }
+                }
+                if(!isInAlliance)
+                {
+                    await SendMessageAsync(this.strings.NotInAlliance);
+                    Console.WriteLine($"Could not verify {Requestor.Username} - Not in our Alliance");
+                    return;
+                }
+
+            }
         }
     }
 }

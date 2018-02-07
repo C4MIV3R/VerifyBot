@@ -54,6 +54,11 @@ namespace VerifyBot
             return Config.WorldIds.Contains(account.WorldId);
         }
 
+        public bool IsAccountInOurAlliance(Account account)
+        {
+            return Config.GuildIds.Contains(account.GuildIds);
+        }
+
         public bool IsUserVerified(IGuildUser user)
         {
             if ((user?.RoleIds?.Count ?? 0) == 0)

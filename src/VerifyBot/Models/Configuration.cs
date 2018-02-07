@@ -11,5 +11,7 @@ namespace VerifyBot.Models
         public string DiscordToken { get; set; }
 
         public List<int> WorldIds { get; set; }
+
+        public List<string> GuildIds {  get; set; }
     }
 }
